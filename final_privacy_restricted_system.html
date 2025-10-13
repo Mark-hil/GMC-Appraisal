@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>G.M.C Performance Management System</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- HR Admin Login Screen -->
+    <div id="hrLoginScreen" class="login-container hidden">
+        <div class="login-card">
+            <div class="hr-login-header">
+                <div class="logo-container">
+                    <img src="c:\Users\hp\OneDrive\Desktop\gmclogo.png" alt="GMC Logo" class="logo-large">
+                </div>
+                <h1>HR Admin Access</h1>
+            </div>
+
+            <div id="hrLoginError" class="alert alert-danger hidden">
+                Invalid credentials. Please try again.
+            </div>
+            <form id="hrLoginForm">
+                <div class="form-group">
+                    <label for="hrUsername">Username</label>
+                    <input type="text" id="hrUsername" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="hrPassword">Password</label>
+                    <input type="password" id="hrPassword" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+          Login to HR Admin
+        </button>
+            </form>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-ghost" onclick="showMainSystem()">
+          Back to Performance Review
+        </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HR Admin Interface -->
+    <div id="hrAdminInterface" class="hidden">
+        <div class="header">
+            <div class="header-actions">
+                <button class="btn btn-ghost" onclick="showMainSystem()">Performance Reviews</button>
+                <button class="btn btn-ghost" onclick="logoutHR()">Logout</button>
+            </div>
+            <div class="logo-container">
+                <img src="c:\Users\hp\OneDrive\Desktop\gmclogo.png" alt="GMC Logo" class="logo-large">
+                <div>
+                    <h1>HR Administration Panel</h1>
+                    <p>Manage KPAs, assign tasks, and oversee performance review system</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showHRTab('kpa-management')">
+          KPA Management
+        </button>
+                <button class="nav-tab" onclick="showHRTab('task-assignment')">
+          Task Assignment
+        </button>
+                <button class="nav-tab" onclick="showHRTab('review-overview')">
+          Review Overview
+        </button>
+                <button class="nav-tab" onclick="showHRTab('system-settings')">
+          System Settings
+        </button>
+                <button class="nav-tab" onclick="showHRTab('hr-notifications')">
+  HR Notifications
+  <span id="hrNotificationBadge" class="badge badge-danger" style="display: none;">0</span>
+</button>
+                <div id="hr-notifications" class="tab-content">
+                    <div class="card">
+                        <h3>HR Completion Notifications</h3>
+                        <p class="small-note">Notifications for completed performance reviews requiring HR action.</p>
+
+                        <div class="flex flex-between">
+                            <button class="btn btn-ghost btn-sm" onclick="markAllHRNotificationsRead()">
+        Mark All as Read
+      </button>
+                            <button class="btn btn-danger btn-sm" onclick="clearAllHRNotifications()">
+        Clear All
+      </button>
+                        </div>
+
+                        <div id="hrNotificationsList" style="margin-top: 15px;">
+                            <!-- Notifications will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="kpa-management" class="tab-content active">
+                <div class="card">
+                    <h3>Manage Key Performance Areas</h3>
+                    <div class="flex flex-between">
+                        <div class="form-group" style="flex: 1; margin-right: 1rem;">
+                            <label for="kpaDepartment">Select Department</label>
+                            <select id="kpaDepartment" class="form-control" onchange="loadDepartmentKPAs()">
+          <option value="">-- Select Department --</option>
+          <option value="MINE OPERATION">MINE OPERATION</option>
+          <option value="MINE PLANNING AND ENGINEERING">MINE PLANNING AND ENGINEERING</option>
+          <option value="PORT OPERATION">PORT OPERATION</option>
+          <option value="SECURITY">SECURITY</option>
+          <option value="SUPPLY CHAIN">SUPPLY CHAIN</option>
+          <option value="ASSAY LAB">ASSAY LAB</option>
+          <option value="ASSET MANAGEMENT">ASSET MANAGEMENT</option>
+          <option value="CARBONATE PLANT">CARBONATE PLANT</option>
+          <option value="CIVIL">CIVIL</option>
+          <option value="COMMUNITY RELATIONS">COMMUNITY RELATIONS</option>
+          <option value="ELECTRIC SHOP">ELECTRIC SHOP</option>
+          <option value="ENVIRONMENT">ENVIRONMENT</option>
+          <option value="FINANCE">FINANCE</option>
+          <option value="GEOLOGY & SURVEY">GEOLOGY & SURVEY</option>
+          <option value="HD/EME">HD/EME</option>
+          <option value="HEALTH & SAFETY">HEALTH & SAFETY</option>
+          <option value="HOSPITAL">HOSPITAL</option>
+          <option value="HUMAN CAPITAL">HUMAN CAPITAL</option>
+          <option value="I.T.">I.T.</option>
+          <option value="LIGHT DUTY">LIGHT DUTY</option>
+          <option value="MECHANICAL WORKSHOP">MECHANICAL WORKSHOP</option>
+          <option value="METALLURGY">METALLURGY</option>
+        </select>
+                        </div>
+                        <div class="form-group" style="flex: 1; margin-right: 1rem;">
+                            <label for="kpaJobTitle">Job Title</label>
+                            <select id="kpaJobTitle" class="form-control" onchange="loadDepartmentKPAs()">
+          <option value="">-- Any Job Title --</option>
+        </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="showAddKPAForm()">
+        Add New KPA
+      </button>
+                    </div>
+
+                    <div id="kpaList">
+                        <p class="small-note">Select a department to view and manage KPAs</p>
+                    </div>
+                </div>
+
+                <div id="kpaFormCard" class="card hidden">
+                    <h3 id="kpaFormTitle">Add New KPA</h3>
+                    <form id="kpaForm">
+                        <div class="form-group">
+                            <label for="kpaTitle">KPA Title</label>
+                            <input type="text" id="kpaTitle" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="kpaDescription">Description (Optional)</label>
+                            <textarea id="kpaDescription" class="form-control"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="kpaBullets">Performance Indicators (One per line)</label>
+                            <textarea id="kpaBullets" class="form-control" rows="5" placeholder="Enter each performance indicator on a new line"></textarea>
+                        </div>
+                        <div class="flex">
+                            <div class="form-group" style="flex: 1; margin-right: 1rem;">
+                                <label for="kpaFormDepartment">Department</label>
+                                <select id="kpaFormDepartment" class="form-control" required onchange="updateKPAFormJobTitles()">
+            <option value="">-- Select Department --</option>
+            <option value="MINE OPERATION">MINE OPERATION</option>
+            <option value="MINE PLANNING AND ENGINEERING">MINE PLANNING AND ENGINEERING</option>
+            <option value="PORT OPERATION">PORT OPERATION</option>
+            <option value="SECURITY">SECURITY</option>
+            <option value="SUPPLY CHAIN">SUPPLY CHAIN</option>
+            <option value="ASSAY LAB">ASSAY LAB</option>
+            <option value="ASSET MANAGEMENT">ASSET MANAGEMENT</option>
+            <option value="CARBONATE PLANT">CARBONATE PLANT</option>
+            <option value="CIVIL">CIVIL</option>
+            <option value="COMMUNITY RELATIONS">COMMUNITY RELATIONS</option>
+            <option value="ELECTRIC SHOP">ELECTRIC SHOP</option>
+            <option value="ENVIRONMENT">ENVIRONMENT</option>
+            <option value="FINANCE">FINANCE</option>
+            <option value="GEOLOGY & SURVEY">GEOLOGY & SURVEY</option>
+            <option value="HD/EME">HD/EME</option>
+            <option value="HEALTH & SAFETY">HEALTH & SAFETY</option>
+            <option value="HOSPITAL">HOSPITAL</option>
+            <option value="HUMAN CAPITAL">HUMAN CAPITAL</option>
+            <option value="I.T.">I.T.</option>
+            <option value="LIGHT DUTY">LIGHT DUTY</option>
+            <option value="MECHANICAL WORKSHOP">MECHANICAL WORKSHOP</option>
+            <option value="METALLURGY">METALLURGY</option>
+          </select>
+                            </div>
+                            <div class="form-group" style="flex: 1;">
+                                <label for="kpaFormJobTitle">Job Title (Optional)</label>
+                                <select id="kpaFormJobTitle" class="form-control">
+            <option value="">-- Any Job Title --</option>
+          </select>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <button type="submit" class="btn btn-success">Save KPA</button>
+                            <button type="button" class="btn btn-ghost" onclick="hideKPAForm()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="kpaList">
+                <p class="small-note">Select a department to view and manage KPAs</p>
+            </div>
+        </div>
+
+        <div id="kpaFormCard" class="card hidden">
+            <h3 id="kpaFormTitle">Add New KPA</h3>
+            <form id="kpaForm">
+                <div class="form-group">
+                    <label for="kpaTitle">KPA Title</label>
+                    <input type="text" id="kpaTitle" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="kpaDescription">Description (Optional)</label>
+                    <textarea id="kpaDescription" class="form-control"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="kpaBullets">Performance Indicators (One per line)</label>
+                    <textarea id="kpaBullets" class="form-control" rows="5" placeholder="Enter each performance indicator on a new line"></textarea>
+                </div>
+                <div class="flex">
+                    <button type="submit" class="btn btn-success">Save KPA</button>
+                    <button type="button" class="btn btn-ghost" onclick="hideKPAForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="task-assignment" class="tab-content">
+        <div class="card">
+            <h3>Assign Tasks to Staff & Peers</h3>
+            <form id="taskForm">
+                <div class="flex">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="taskDepartment">Department</label>
+                        <select id="taskDepartment" class="form-control" required onchange="updateTaskJobTitles()">
+            <option value="">-- Select Department --</option>
+            <option value="MINE OPERATION">MINE OPERATION</option>
+            <option value="MINE PLANNING AND ENGINEERING">MINE PLANNING AND ENGINEERING</option>
+            <option value="PORT OPERATION">PORT OPERATION</option>
+            <option value="SECURITY">SECURITY</option>
+            <option value="SUPPLY CHAIN">SUPPLY CHAIN</option>
+            <option value="ASSAY LAB">ASSAY LAB</option>
+            <option value="ASSET MANAGEMENT">ASSET MANAGEMENT</option>
+            <option value="CARBONATE PLANT">CARBONATE PLANT</option>
+            <option value="CIVIL">CIVIL</option>
+            <option value="COMMUNITY RELATIONS">COMMUNITY RELATIONS</option>
+            <option value="ELECTRIC SHOP">ELECTRIC SHOP</option>
+            <option value="ENVIRONMENT">ENVIRONMENT</option>
+            <option value="FINANCE">FINANCE</option>
+            <option value="GEOLOGY & SURVEY">GEOLOGY & SURVEY</option>
+            <option value="HD/EME">HD/EME</option>
+            <option value="HEALTH & SAFETY">HEALTH & SAFETY</option>
+            <option value="HOSPITAL">HOSPITAL</option>
+            <option value="HUMAN CAPITAL">HUMAN CAPITAL</option>
+            <option value="I.T.">I.T.</option>
+            <option value="LIGHT DUTY">LIGHT DUTY</option>
+            <option value="MECHANICAL WORKSHOP">MECHANICAL WORKSHOP</option>
+            <option value="METALLURGY">METALLURGY</option>
+          </select>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="taskJobTitle">Job Title (Optional)</label>
+                        <select id="taskJobTitle" class="form-control">
+            <option value="">-- Any Job Title --</option>
+          </select>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="taskType">Task Type</label>
+                        <select id="taskType" class="form-control" required>
+            <option value="">-- Select Type --</option>
+            <option value="objective">Performance Objective</option>
+            <option value="kpa">KPA Assessment</option>
+            <option value="training">Training Requirement</option>
+            <option value="review">Review Deadline</option>
+          </select>
+                    </div>
+                </div>
+
+                <div class="flex">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="taskStaffEmail">Staff Email</label>
+                        <input type="email" id="taskStaffEmail" class="form-control" placeholder="Enter staff email" required>
+                        <p class="small-note">Staff will receive self-assessment link</p>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="taskPeerEmail">Peer Email</label>
+                        <input type="email" id="taskPeerEmail" class="form-control" placeholder="Enter peer email">
+                        <p class="small-note">Peer will receive peer-assessment link</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskTitle">Task Title</label>
+                    <input type="text" id="taskTitle" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="taskDescription">Task Description</label>
+                    <textarea id="taskDescription" class="form-control" required></textarea>
+                </div>
+
+                <div class="flex">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="taskPriority">Priority</label>
+                        <select id="taskPriority" class="form-control" required>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="taskDeadline">Deadline</label>
+                        <input type="date" id="taskDeadline" class="form-control" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Assign Task</button>
+            </form>
+        </div>
+
+        <!-- Add this table to display assigned tasks -->
+        <div class="card">
+            <h3>Assigned Tasks</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Task Title</th>
+                        <th>Department</th>
+                        <th>Job Title</th>
+                        <th>Staff Email</th>
+                        <th>Peer Email</th>
+                        <th>HOD Email</th>
+                        <th>Type</th>
+                        <th>Priority</th>
+                        <th>Deadline</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tasksTableBody">
+                    <tr>
+                        <td colspan="11" class="small-note">No tasks assigned yet</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="review-overview" class="tab-content">
+        <div class="card">
+            <h3>Performance Review Overview</h3>
+            <p class="small-note">
+                View all performance reviews (Read-only access - submitted reviews cannot be modified)
+            </p>
+
+            <div class="flex">
+                <div class="form-group" style="flex: 1;">
+                    <label for="reviewFilter">Filter by Department</label>
+                    <select id="reviewFilter" class="form-control" onchange="filterReviews()">
+                <option value="ALL">All Departments</option>
+                <option value="MINE OPERATION">MINE OPERATION</option>
+                <option value="MINE PLANNING AND ENGINEERING">MINE PLANNING AND ENGINEERING</option>
+                <option value="PORT OPERATION">PORT OPERATION</option>
+                <option value="SECURITY">SECURITY</option>
+                <option value="SUPPLY CHAIN">SUPPLY CHAIN</option>
+                <option value="ASSAY LAB">ASSAY LAB</option>
+                <option value="ASSET MANAGEMENT">ASSET MANAGEMENT</option>
+                <option value="CARBONATE PLANT">CARBONATE PLANT</option>
+                <option value="CIVIL">CIVIL</option>
+                <option value="COMMUNITY RELATIONS">COMMUNITY RELATIONS</option>
+                <option value="ELECTRIC SHOP">ELECTRIC SHOP</option>
+                <option value="ENVIRONMENT">ENVIRONMENT</option>
+                <option value="FINANCE">FINANCE</option>
+                <option value="GEOLOGY & SURVEY">GEOLOGY & SURVEY</option>
+                <option value="HD/EME">HD/EME</option>
+                <option value="HEALTH & SAFETY">HEALTH & SAFETY</option>
+                <option value="HOSPITAL">HOSPITAL</option>
+                <option value="HUMAN CAPITAL">HUMAN CAPITAL</option>
+                <option value="I.T.">I.T.</option>
+                <option value="LIGHT DUTY">LIGHT DUTY</option>
+                <option value="MECHANICAL WORKSHOP">MECHANICAL WORKSHOP</option>
+                <option value="METALLURGY">METALLURGY</option>
+              </select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="statusFilter">Filter by Status</label>
+                    <select id="statusFilter" class="form-control" onchange="filterReviews()">
+                <option value="ALL">All Statuses</option>
+                <option value="Draft">Draft</option>
+                <option value="Pending Peer">Pending Peer</option>
+                <option value="Pending HOD">Pending HOD</option>
+                <option value="Completed">Completed</option>
+              </select>
+                </div>
+            </div>
+
+            <table class="table" id="reviewsTable">
+                <thead>
+                    <tr>
+                        <th>Staff Name</th>
+                        <th>Email.</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reviewsTableBody">
+                    <tr>
+                        <td colspan="6" class="small-note">No reviews found</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="system-settings" class="tab-content">
+        <div class="card">
+            <h3>System Configuration</h3>
+
+            <div class="form-group">
+                <label>Default Review Period</label>
+                <div class="flex">
+                    <input type="date" id="defaultPeriodFrom" class="form-control">
+                    <span>to</span>
+                    <input type="date" id="defaultPeriodTo" class="form-control">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="reviewDeadline">Review Submission Deadline</label>
+                <input type="date" id="reviewDeadline" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label>
+        <input type="checkbox" id="emailNotifications"> 
+        Enable Email Notifications
+      </label>
+            </div>
+
+            <div class="form-group">
+                <label>
+        <input type="checkbox" id="allowSelfRating" checked> 
+        Allow Staff Self-Rating
+      </label>
+            </div>
+            <div class="form-group">
+                <label for="hrEmail">HR Department Email</label>
+                <input type="email" id="hrEmail" class="form-control" placeholder="hr.department@company.com">
+                <p class="small-note">HR will receive notifications when HODs complete reviews</p>
+            </div>
+
+            <div class="form-group">
+                <label>
+        <input type="checkbox" id="notifyHROnCompletion" checked> 
+        Notify HR when HOD completes reviews
+      </label>
+            </div>
+
+            <button class="btn btn-success" onclick="saveSystemSettings()">
+      Save Settings
+    </button>
+        </div>
+
+        <!-- Add HOD Email Management Section -->
+        <div class="card">
+            <h3>HOD Email Configuration</h3>
+            <p class="small-note">Configure HOD email addresses for each department. These will be automatically used for notifications when staff/peer submit reviews.</p>
+
+            <div id="hodEmailConfig">
+                <!-- HOD emails will be loaded here dynamically -->
+            </div>
+
+            <button class="btn btn-primary" onclick="saveHODEmails()">
+      Save HOD Emails
+    </button>
+        </div>
+    </div>
+
+    <!-- Main Performance Review System -->
+    <div id="mainSystem" class="container">
+        <div class="header">
+            <div class="header">
+                <div class="header-actions">
+                    <button class="btn btn-ghost" onclick="showHRLogin()" id="hrAdminBtn">HR Admin</button>
+                </div>
+                <div class="logo-container">
+                    <img src="c:\Users\hp\OneDrive\Desktop\gmclogo.png" alt="GMC Logo" class="logo-large">
+                </div>
+                <h1>Performance Management System</h1>
+            </div>
+
+            <div id="notificationBanner" class="notification-banner">
+                <strong>HR Tasks & Notifications:</strong>
+                <div id="notificationContent"></div>
+                <div id="hodNotificationBanner" class="notification-banner hidden" style="background: linear-gradient(135deg, #17a2b8, #138496);">
+                    <strong>📋 HOD Notifications:</strong>
+                    <div id="hodNotificationContent"></div>
+                    <button class="btn btn-ghost btn-sm" onclick="clearHODNotifications()" style="margin-left: 10px; color: white; border-color: white;">
+    Clear All
+  </button>
+                </div>
+            </div>
+
+            <div class="card top-row">
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                    <label for="role">Role</label>
+                    <select id="role">
+          <option value="staff">Staff (Self)</option>
+          <option value="peer">Peer (Colleague)</option>
+          <option value="hod">HOD (Reviewer)</option>
+          <option value="hr">HR (View All)</option>
+        </select>
+                </div>
+
+                <div id="roleAuthPrompt" class="auth-box hidden">
+                    <p style="margin:0 0 8px 0;font-weight:600">🔒 HOD/HR Access Required</p>
+                    <p class="small-note" style="margin-bottom:10px">This role requires authentication. Please enter your password.</p>
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                        <input type="password" id="rolePassword" class="form-control" placeholder="Enter password" style="max-width:200px">
+                        <button class="btn btn-primary btn-sm" onclick="verifyRoleAccess()">Verify</button>
+                        <button class="btn btn-ghost btn-sm" onclick="cancelRoleChange()">Cancel</button>
+                    </div>
+                    <p id="roleAuthError" class="small-note" style="color:var(--danger);margin:6px 0 0 0;display:none">❌ Invalid password. Please try again.</p>
+                </div>
+
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                    <label for="filterDept">Filter Dept (HOD Dashboard)</label>
+                    <select id="filterDept">
+          <option value="ALL">All</option>
+          <option value="MINE OPERATION">MINE OPERATION</option>
+          <option value="MINE PLANNING AND ENGINEERING">MINE PLANNING AND ENGINEERING</option>
+          <option value="PORT OPERATION">PORT OPERATION</option>
+          <option value="SECURITY">SECURITY</option>
+          <option value="SUPPLY CHAIN">SUPPLY CHAIN</option>
+          <option value="ASSAY LAB">ASSAY LAB</option>
+          <option value="ASSET MANAGEMENT">ASSET MANAGEMENT</option>
+          <option value="CARBONATE PLANT">CARBONATE PLANT</option>
+          <option value="CIVIL">CIVIL</option>
+          <option value="COMMUNITY RELATIONS">COMMUNITY RELATIONS</option>
+          <option value="ELECTRIC SHOP">ELECTRIC SHOP</option>
+          <option value="ENVIRONMENT">ENVIRONMENT</option>
+          <option value="FINANCE">FINANCE</option>
+          <option value="GEOLOGY & SURVEY">GEOLOGY & SURVEY</option>
+          <option value="HD/EME">HD/EME</option>
+          <option value="HEALTH & SAFETY">HEALTH & SAFETY</option>
+          <option value="HOSPITAL">HOSPITAL</option>
+          <option value="HUMAN CAPITAL">HUMAN CAPITAL</option>
+          <option value="I.T.">I.T.</option>
+          <option value="LIGHT DUTY">LIGHT DUTY</option>
+          <option value="MECHANICAL WORKSHOP">MECHANICAL WORKSHOP</option>
+          <option value="METALLURGY">METALLURGY</option>
+        </select>
+                </div>
+
+                <div style="margin-left:auto" class="controls">
+                    <button class="btn btn-ghost" id="newBtn">New Review</button>
+                    <button class="btn btn-ghost" id="loadBtn">Find by Email.</button>
+                    <input id="findEmail" type="text" placeholder="Enter Email." class="form-control" style="width: 200px;" />
+                </div>
+            </div>
+
+            <div class="card" id="sectionA">
+                <div style="display:flex;gap:18px;flex-wrap:wrap">
+                    <div style="flex:1;min-width:220px;max-width:320px;background:#f8fafc;padding:12px;border-radius:8px">
+                        <h3 style="margin:6px 0">Section A (A= 60%)</h3>
+                        <p class="small-note">This section must be completed by both the Reviewer (HOD) and the Reviewee (Staff).</p>
+                        <p class="small-note">Select department – this decides department-specific objectives & KPAs.</p>
+                        <h3 style="margin:6px 0">Section B (B= 40%)</h3>
+                        <p class="small-note">This section must be completed by both the Reviewer (HOD) the Reviewee (Staff) and a peer (Colleague).</p>
+                    </div>
+
+                    <div style="flex:2;min-width:280px">
+                        <label>Name</label><input id="staffName" type="text" class="form-control" />
+                        <label>Email.</label><input id="Email" type="text" class="form-control" />
+                        <label>Department</label>
+                        <select id="departmentSelect" class="form-control" onchange="updateJobTitles()">
+            <option value="">-- Select Department --</option>
+            <option value="MINE OPERATION">MINE OPERATION</option>
+            <option value="MINE PLANNING AND ENGINEERING">MINE PLANNING AND ENGINEERING</option>
+            <option value="PORT OPERATION">PORT OPERATION</option>
+            <option value="SECURITY">SECURITY</option>
+            <option value="SUPPLY CHAIN">SUPPLY CHAIN</option>
+            <option value="ASSAY LAB">ASSAY LAB</option>
+            <option value="ASSET MANAGEMENT">ASSET MANAGEMENT</option>
+            <option value="CARBONATE PLANT">CARBONATE PLANT</option>
+            <option value="CIVIL">CIVIL</option>
+            <option value="COMMUNITY RELATIONS">COMMUNITY RELATIONS</option>
+            <option value="ELECTRIC SHOP">ELECTRIC SHOP</option>
+            <option value="ENVIRONMENT">ENVIRONMENT</option>
+            <option value="FINANCE">FINANCE</option>
+            <option value="GEOLOGY & SURVEY">GEOLOGY & SURVEY</option>
+            <option value="HD/EME">HD/EME</option>
+            <option value="HEALTH & SAFETY">HEALTH & SAFETY</option>
+            <option value="HOSPITAL">HOSPITAL</option>
+            <option value="HUMAN CAPITAL">HUMAN CAPITAL</option>
+            <option value="I.T.">I.T.</option>
+            <option value="LIGHT DUTY">LIGHT DUTY</option>
+            <option value="MECHANICAL WORKSHOP">MECHANICAL WORKSHOP</option>
+            <option value="METALLURGY">METALLURGY</option>
+          </select>
+                        <label>Job Title</label>
+                        <select id="jobTitle" class="form-control">
+            <option value="">-- Select Job Title --</option>
+          </select>
+                        <div style="display:flex;gap:10px;margin-top:8px">
+                            <div style="flex:1">
+                                <label>Appraisal Period From</label><input id="periodFrom" type="date" class="form-control" />
+                            </div>
+                        </div>
+                        <div style="flex:1">
+                            <label>To</label><input id="periodTo" type="date" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="sectionB">
+            <h2 style="margin:0 0 6px 0">Section B – Targets / Objectives</h2>
+            <p class="small-note">This section must be completed by the Reviewer (HOD), Reviewee (Staff), and a Peer (Colleague). A = 60% (Section A); Section B instructions: This section must be completed by HOD, Reviewee and Peer.</p>
+            <div id="objectivesArea"></div>
+        </div>
+        <div class="card" id="detailedAssessmentSection" style="display: none;">
+            <h2 style="margin:0 0 6px 0">DETAILED PERFORMANCE ASSESSMENTS</h2>
+            <p class="small-note">To be completed by HOD/Reviewee/Peer (Please assign marks in the rating box)</p>
+            <div id="detailedAssessmentArea"></div>
+        </div>
+
+        <!-- DETAILED PERFORMANCE ASSESSMENTS SECTION REMOVED -->
+
+        <div class="card" id="trainingCard">
+            <h2 style="margin:0 0 6px 0">TRAINING NEEDS</h2>
+            <table class="table" id="trainingTable">
+                <thead>
+                    <tr>
+                        <th>Training & Developmental Needs Emerging from this Appraisal</th>
+                        <th>Proposed Developmental Activity</th>
+                    </tr>
+                </thead>
+                <tbody id="trainingBody">
+                    <tr>
+                        <td><textarea class="tn-need form-control"></textarea></td>
+                        <td><textarea class="tn-activity form-control"></textarea></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="margin-top:8px"><button class="btn btn-ghost" id="addTraining">+ Add Row</button></div>
+        </div>
+
+        <div class="card" id="suggestionsCard">
+            <h2 style="margin:0 0 6px 0">STAFF SUGGESTIONS & COMMENTS</h2>
+            <p class="small-note"><em>(To be completed by Staff following discussions with HOD)</em></p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Suggestions / Comments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><textarea id="suggestionsText" class="form-control"></textarea></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="small-note"> What suggestions/comments will you make to improve our systems and procedures?</p>
+        </div>
+
+        <div class="card">
+            <h2 style="margin:0 0 6px 0">DIGITAL SIGNATURES</h2>
+            <div style="display:flex;gap:14px;flex-wrap:wrap">
+                <div style="flex:1;min-width:220px">
+                    <label>Staff Signature</label>
+                    <canvas id="sigStaff" width="390" height="120" class="signature-canvas"></canvas>
+                    <div style="margin-top:6px">
+                        <button class="btn btn-ghost" id="clearStaff">Clear</button>
+                    </div>
+                </div>
+                <div style="flex:1;min-width:220px">
+                    <label>Peer Signature</label>
+                    <canvas id="sigPeer" width="390" height="120" class="signature-canvas"></canvas>
+                    <div style="margin-top:6px"><button class="btn btn-ghost" id="clearPeer">Clear</button></div>
+                </div>
+                <div style="flex:1;min-width:220px">
+                    <label>HOD Signature</label>
+                    <canvas id="sigHod" width="390" height="120" class="signature-canvas"></canvas>
+                    <div style="margin-top:6px"><button class="btn btn-ghost" id="clearHod">Clear</button></div>
+                </div>
+            </div>
+            <p class="small-note" style="margin-top:8px">Signatures are embedded into exported PDF if present. Staff signs when they complete self-review; Peer and HOD sign when they complete their parts.</p>
+        </div>
+
+        <div class="card">
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button class="btn btn-primary" id="saveBtn">Save (role-aware)</button>
+                <button class="btn btn-ghost" id="submitHodBtn">Submit to HOD</button>
+                <button class="btn btn-ghost" id="markCompletedBtn">Mark Completed (HOD Only)</button>
+                <button class="btn btn-ghost" id="exportBtn">Export PDF (HOD)</button>
+                <button class="btn btn-ghost" id="deleteBtn">Delete Review</button>
+            </div>
+            <p id="statusMsg" class="small-note" style="margin-top:10px"></p>
+        </div>
+
+        <div class="card" id="hodDashboard" style="display:none">
+            <h2 style="margin:0 0 8px 0">HOD Dashboard</h2>
+            <p class="small-note">Visible to HOD & HR. Click Open to load review into form for editing/review.</p>
+            <table class="table" id="dashboardTable">
+                <thead>
+                    <tr>
+                        <th>Staff Name</th>
+                        <th>Email.</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="dashboardBody"></tbody>
+            </table>
+        </div>
+        <div id="alertContainer" style="position: fixed; top: 20px; right: 20px; z-index: 1000;"></div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.6/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+    <script src="scripts.js"></script>
+</body>
+
+</html>
